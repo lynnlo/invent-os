@@ -1,18 +1,39 @@
-import React from 'react';
+// Lynn Ong. 20201
+/* eslint-disable no-unused-vars */
+
+// Packages
+import React, { } from 'react';
+import { } from '@material-ui/core';
+import { Admin, Resource, ListGuesser, EditGuesser } from 'react-admin';
+import jsonServerProvider from 'ra-data-json-server';
+import uniqid from 'uniqid';
+
+// Data Structures
+import UsersList from './dataStructures/users.js';
 
 function App() {
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <header>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	/*
+	const [Data, setData] = useState({})
+	setData({
+		users : [
+			{
+				name: "customer 1",
+				id : uniqid('u-'),
+			}
+		]
+	})
+	*/
+	let data = jsonServerProvider('https://jsonplaceholder.typicode.com');
+
+	return (
+		<div>
+			<Admin dataProvider={data}>
+				<Resource name="users" list={UsersList} edit={EditGuesser}>
+
+				</Resource>
+			</Admin>
+		</div>
+	);
 }
 
 export default App;
