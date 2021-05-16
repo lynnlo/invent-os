@@ -11,38 +11,53 @@
 &nbsp;
 
 ### Data Types
-#1
 
 ## ` User `
 
 ```js
-- Name : String
 - ID : String // 'u-' + id
-- Orders : Object
-	- Order.ID : Number
+- Name : String
+- Phone : String
+- Location : Object
+	- City : String
+	- Address : String
+	- Instruction : String
+- Notes : String
 ```
+
+## ` Shipment `
+```js
+- ID : String // 's-' + id
+- Code : Number
+- Start_Date : Date
+- Ship_Date : Date
+- Shipped : Boolean
+```
+
 
 ## ` Order `
 
 ```js
-- Name : String
-- ID : Number // 'o-' + id
-- Items : Object
-	- Item.Name : String
-	- Item.ID : String
-	- Item.Image : String
-	- Item.Price : Number
-	- Item.Amount : Number
+- ID : String // 'o-' + id
+- Order_Code : Number
+- Shipment_Code : Number // Reference Code
+- Order_Date : Date
+- Customer : String // Reference ID
+- Items : Array<Object>
+	- Items.ID : String // 'i-' + id
+	- Items.Product : String // Reference ID
+	- Items.Quantity : Number
+- Notes : String
 ```
 
-## ` Item `
+## ` Product  `
 
 ```js
+- ID : String // 'p-' + id
 - Name : String
-- ID : String // 'i-' + id
-- Image : String
+- Description : String
+- Size : String
 - Price : Number
-- Amount : Number
 ```
 
 &nbsp;

@@ -1,18 +1,54 @@
-// Lynn Ong. 20201
+// Lynn Ong. 2021
 
-import * as React from "react";
-import { List, Datagrid, TextField, EmailField } from 'react-admin';
+import * as React from 'react';
+import {
+	List,
+	Datagrid,
+	TextField,
+	EditButton,
+	Edit,
+	SimpleForm,
+	TextInput,
+	Create,
+} from 'react-admin';
+import { Back } from './globals.js'
 
-const UserList = props => (
+export const UsersList = props => (
 	<List {...props}>
-		<Datagrid rowClick="edit">
+		<Datagrid>
 			<TextField source="id" />
 			<TextField source="name" />
-			<EmailField source="email" />
-			<TextField source="address.city" label="City" />
 			<TextField source="phone" />
+			<TextField source="location.city" label="City" />
+			<TextField source="location.address" label="Address" />
+			<TextField source="notes" sortable={false} />
+			<EditButton />
 		</Datagrid>
 	</List>
 );
 
-export default UserList;
+export const UsersEdit = props => (
+	<Edit {...props} title="Edit" actions={<Back />}>
+		<SimpleForm>
+			<TextInput source="id" />
+			<TextInput source="name" />
+			<TextInput source="phone" />
+			<TextInput source="location.city" label="City" />
+			<TextInput source="location.address" label="Address" />
+			<TextInput source="notes" multiline />
+		</SimpleForm>
+	</Edit>
+);
+
+export const UsersCreate= props => (
+	<Create {...props} actions={<Back />}>
+		<SimpleForm>
+			<TextInput source="id" />
+			<TextInput source="name" />
+			<TextInput source="phone" />
+			<TextInput source="location.city" label="City" />
+			<TextInput source="location.address" label="Address" />
+			<TextInput source="notes" multiline />
+		</SimpleForm>
+	</Create>
+);

@@ -1,15 +1,19 @@
-// Lynn Ong. 20201
+// Lynn Ong. 2021
 /* eslint-disable no-unused-vars */
 
 // Packages
-import React, { } from 'react';
-import { } from '@material-ui/core';
+import React from 'react';
 import { Admin, Resource, ListGuesser, EditGuesser } from 'react-admin';
-import jsonServerProvider from 'ra-data-json-server';
 import uniqid from 'uniqid';
 
-// Data Structures
-import UsersList from './dataStructures/users.js';
+// Data
+import data from './data.js';
+import { Dashboard } from './dataStructures/dashboard.js';
+import { UsersList, UsersEdit, UsersCreate } from './dataStructures/users.js';
+import { ShipmentsList, ShipmentsEdit, ShipmentsCreate } from './dataStructures/shipments.js';
+import { OrdersList, OrdersEdit, OrdersCreate } from './dataStructures/orders.js';
+import { ProductsList, ProductsEdit, ProductsCreate } from './dataStructures/products.js';
+import {People, LocalShipping, CollectionsBookmark, Category } from '@material-ui/icons';
 
 function App() {
 	/*
@@ -23,14 +27,14 @@ function App() {
 		]
 	})
 	*/
-	let data = jsonServerProvider('https://jsonplaceholder.typicode.com');
 
 	return (
 		<div>
-			<Admin dataProvider={data}>
-				<Resource name="users" list={UsersList} edit={EditGuesser}>
-
-				</Resource>
+			<Admin dataProvider={data} dashboard={Dashboard} title="Invent OS" disableTelemetry>
+				<Resource name="users" list={UsersList} edit={UsersEdit} create={UsersCreate} icon={People} />
+				<Resource name="shipments" list={ShipmentsList} edit={ShipmentsEdit} create={ShipmentsCreate} icon={LocalShipping} />
+				<Resource name="orders" list={OrdersList} edit={OrdersEdit} create={OrdersCreate} icon={CollectionsBookmark} />
+				<Resource name="products" list={ProductsList} edit={ProductsEdit} create={ProductsCreate} icon={Category} />
 			</Admin>
 		</div>
 	);
