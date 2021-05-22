@@ -15,16 +15,6 @@ let data = fakeDataProvider({
 				address : '1234 Street Road',
 				instructions : '',
 			},
-			test: [
-				{
-					id: 'a-1',
-					name: 'a',
-				},
-				{
-					id: 'a-2',
-					name: 'a',
-				},
-			],
 			notes : '',
 		},
 		{ 
@@ -36,16 +26,6 @@ let data = fakeDataProvider({
 				address : '1234 Park Drive',
 				instructions : 'Leave at front door',
 			},
-			test: [
-				{
-					id: 'a-1',
-					name: 'a',
-				},
-				{
-					id: 'a-2',
-					name: 'a',
-				},
-			],
 			notes : '',
 		},
 		{ 
@@ -57,16 +37,6 @@ let data = fakeDataProvider({
 				address : '1234 Road Street',
 				instructions : '',
 			},
-			test: [
-				{
-					id: 'a-1',
-					name: 'a',
-				},
-				{
-					id: 'a-2',
-					name: 'a',
-				},
-			],
 			notes : '',
 		},
 	],
@@ -98,6 +68,7 @@ let data = fakeDataProvider({
 					quantity: 1,
 				},
 			],
+			paid: false,
 			notes: '',
 		},
 		{ 
@@ -123,6 +94,7 @@ let data = fakeDataProvider({
 					quantity: 3,
 				},
 			],
+			paid: true,
 			notes: '',
 		},
 	],

@@ -13,3 +13,7 @@ export const Search = props => (
 export const Back = () => (
 	<Button label="Back" startIcon={<ArrowBack />} onClick={() => {window.history.back()}} />
 )
+
+export const IconLabel = ( {label, icon } ) => (
+	<div style={{ display: 'flex',alignItems: 'center' }}> {icon} {label} </div>
+)

@@ -14,32 +14,84 @@ import {
 	ReferenceField,
 	DateField,
 	DateInput,
-	NumberInput,
-	NumberField,
 	BooleanField,
 	BooleanInput,
+	useUpdateMany,
+	useRefresh,
+	useNotify,
+	useUnselectAll,
+	Button,
+	BulkDeleteWithUndoButton,
+	useGetList,
 } from 'react-admin';
-import { Clear, Check } from '@material-ui/icons';
+import { Clear, Check, Send } from '@material-ui/icons';
 import { Back } from './globals.js'
+import uniqid from 'uniqid';
+
+const BiggestShipmentCodePlusOne = () => {
+	let biggest = 0;
+	const { data } = useGetList('shipments');
+
+	for (const x in data){
+		if (data[x].code > biggest) {
+			biggest = data[x].code;
+		}
+	}
+
+	return biggest + 1;
+}
+
+const ShipmentsSend = ({ selectedIds }) => {
+	const refresh = useRefresh();
+	const notify = useNotify();
+	const unselectAll = useUnselectAll();
+	const [updateMany] = useUpdateMany(
+		'shipments',
+		selectedIds,
+		{ shipped: true },
+		{
+			onSuccess: () => {
+				refresh();
+				notify('Shipments updated', 'info', {}, true);
+				unselectAll('shipments');
+			},
+			onFailure: () => notify('Error: Shipments can not updated', 'warning'),
+		}
+	);
+
+	return (
+		<div>
+			<Button label="Send Shipments" startIcon={<Send />} onClick={updateMany} />
+		</div>
+	);
+}
+
+const BulkButtons = props => {
+	return (
+		<div>
+			<ShipmentsSend {...props} />
+			<BulkDeleteWithUndoButton {...props} />
+		</div>
+	)
+}
 
 export const ShipmentsList = props => (
-	<List {...props}>
+	<List {...props} bulkActionButtons={<BulkButtons />}>
 		<Datagrid>
 			<TextField source="id" />
-			<NumberField source="code" label="Shipment Code" />
+			<TextField source="code" label="Shipment Code" />
 			<DateField source="start_date" label="Start Date" />
 			<DateField source="ship_date" label="Ship Date" />
 			<BooleanField source="shipped" label="Shipped" FalseIcon={Clear} TrueIcon={Check} />
 			<ReferenceManyField source="code" reference="orders" target="shipment_code" sortable={false}>
 				<Datagrid>
-					<TextField source="id" />
-					<ReferenceField source="id" reference="orders" label="Order">
+					<ReferenceField source="id" reference="orders" label="Order" sortable={false}>
 						<TextField source="order_code" />
 					</ReferenceField>
-					<ReferenceField source="customer" reference="users" label="Customer">
+					<ReferenceField source="customer" reference="users" label="Customer" sortable={false}>
 						<TextField source="name" />
 					</ReferenceField>
-					<ReferenceField source="customer" reference="users" label="City" link={false}>
+					<ReferenceField source="customer" reference="users" label="City" link={false} sortable={false}>
 						<TextField source="location.city" />
 					</ReferenceField>
 				</Datagrid>
@@ -51,24 +103,24 @@ export const ShipmentsList = props => (
 
 export const ShipmentsEdit = props => (
 	<Edit {...props} title="Edit" actions={<Back />}>
-		<SimpleForm>
-			<TextInput source="id" />
-			<NumberInput source="code" />
+		<SimpleForm submitOnEnter redirect="shipments">
+			<TextInput source="id" defaultValue={uniqid('s-')} />
+			<TextInput source="code" defaultValue={BiggestShipmentCodePlusOne()} />
 			<DateInput source="start_date" label="Start Date" />
 			<DateInput source="ship_date" label="Ship Date" />
-			<BooleanInput source="shipped" label="Shipped" />
+			<BooleanInput source="shipped" label="Shipped" defaultValue={false} />
 		</SimpleForm>
 	</Edit>
 );
 
 export const ShipmentsCreate= props => (
 	<Create {...props} actions={<Back />}>
-		<SimpleForm>
-			<TextInput source="id" />
-			<NumberInput source="code" />
+		<SimpleForm submitOnEnter redirect="shipments">
+			<TextInput source="id" defaultValue={uniqid('s-')} />
+			<TextInput source="code" defaultValue={BiggestShipmentCodePlusOne()} />
 			<DateInput source="start_date" label="Start Date" />
 			<DateInput source="ship_date" label="Ship Date" />
-			<BooleanInput source="shipped" label="Shipped" />
+			<BooleanInput source="shipped" label="Shipped" defaultValue={false} />
 		</SimpleForm>
 	</Create>
 );
