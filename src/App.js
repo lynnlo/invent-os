@@ -7,6 +7,7 @@ import { CssBaseline, createMuiTheme } from '@material-ui/core';
 import { People, LocalShipping, CollectionsBookmark, Category } from '@material-ui/icons';
 import { Admin, Resource } from 'react-admin';
 import { FirebaseDataProvider } from 'react-admin-firebase';
+import axios from 'axios'
 
 // Structures
 import data from './data.js';
@@ -17,7 +18,7 @@ import { OrdersList, OrdersEdit, OrdersCreate } from './dataStructures/orders.js
 import { ProductsList, ProductsEdit, ProductsCreate } from './dataStructures/products.js';
 
 // Firebase API
-const config = {
+const firebaseConfig = {
 	apiKey: "AIzaSyC4W6jxNGcZv21odBSaa2KNsavNzlAG1JU",
     authDomain: "inventos-81af5.firebaseapp.com",
     projectId: "inventos-81af5",
@@ -26,7 +27,7 @@ const config = {
     appId: "1:746767026671:web:24421173fc90512528ce1a"
 };
 	
-// const dataProvider = FirebaseDataProvider(config, {});
+// const dataProvider = FirebaseDataProvider(firebaseConfig, {});
 const dataProvider = data;
 
 function App() {
@@ -69,13 +70,15 @@ function App() {
 	*/
 
 	return (
-		<Admin theme={styles} dataProvider={dataProvider} dashboard={Dashboard} title="Invent OS" disableTelemetry>
+		<div>
 			<CssBaseline />
-			<Resource name="users" list={UsersList} edit={UsersEdit} create={UsersCreate} icon={People} />
-			<Resource name="shipments" list={ShipmentsList} edit={ShipmentsEdit} create={ShipmentsCreate} icon={LocalShipping} />
-			<Resource name="orders" list={OrdersList} edit={OrdersEdit} create={OrdersCreate} icon={CollectionsBookmark} />
-			<Resource name="products" list={ProductsList} edit={ProductsEdit} create={ProductsCreate} icon={Category} />
-		</Admin>
+			<Admin theme={styles} dataProvider={dataProvider} dashboard={Dashboard} title="Invent OS" disableTelemetry>
+				<Resource name="users" list={UsersList} edit={UsersEdit} create={UsersCreate} icon={People} />
+				<Resource name="shipments" list={ShipmentsList} edit={ShipmentsEdit} create={ShipmentsCreate} icon={LocalShipping} />
+				<Resource name="orders" list={OrdersList} edit={OrdersEdit} create={OrdersCreate} icon={CollectionsBookmark} />
+				<Resource name="products" list={ProductsList} edit={ProductsEdit} create={ProductsCreate} icon={Category} />
+			</Admin>
+		</div>
 	);
 }
 

@@ -35,14 +35,15 @@ import {
 	BooleanInput,
 	useGetList
 } from 'react-admin';
-import { AttachMoney, Clear, Check, Height, LocalShipping } from '@material-ui/icons';
+import { AttachMoney, Clear, Check, Height, LocalShipping, Print } from '@material-ui/icons';
 import { Back } from './globals.js';
 import { Filter } from './orders-filter.js';
 import uniqid from 'uniqid';
+import printjs from 'print-js';
 
 const BiggestOrderCodePlusOne = () => {
 	let biggest = 0;
-	const { data } = useGetList('orders');
+	const { data } = useGetList("orders");
 
 	for (const x in data){
 		if (data[x].order_code > biggest) {
@@ -55,7 +56,7 @@ const BiggestOrderCodePlusOne = () => {
 
 const BiggestShipmentCode = () => {
 	let biggest = 0;
-	const { data } = useGetList('shipments');
+	const { data } = useGetList("shipments");
 
 	for (const x in data){
 		if (data[x].code > biggest) {
@@ -73,16 +74,16 @@ const ShipmentCode = ({ selectedIds }) => {
 	const notify = useNotify();
 	const unselectAll = useUnselectAll();
 	const [updateMany, { loading }] = useUpdateMany(
-		'orders',
+		"orders",
 		selectedIds,
 		{ shipment_code: code },
 		{
 			onSuccess: () => {
 				refresh();
-				notify('Orders updated', 'info', {}, true);
-				unselectAll('orders');
+				notify("Orders updated", "info", {}, true);
+				unselectAll("orders");
 			},
-			onFailure: () => notify('Error: orders can not updated', 'warning'),
+			onFailure: () => notify("Error: orders can not updated", "warning"),
 		}
 	);
 	const handleClick = () => setOpen(true);
@@ -94,8 +95,7 @@ const ShipmentCode = ({ selectedIds }) => {
 	};
 
 	return (
-		<div>
-			<Button label="Shipment Code" startIcon={<LocalShipping />} onClick={handleClick} />
+		<Button label="Shipment Code" startIcon={<LocalShipping />} onClick={handleClick} color="default"> 
 			<Confirm
 				isOpen={open}
 				loading={loading}
@@ -106,29 +106,106 @@ const ShipmentCode = ({ selectedIds }) => {
 				CancelIcon={Clear}
 				ConfirmIcon={Check}
 			/>
-		</div>
+		</Button>
+	);
+}
+
+const PrintOrders = ({ selectedIds }) => {
+	let orders = [];
+	let shipping_codes = [];
+
+	const getUsers = useGetList("users");
+	const getProducts = useGetList("products");
+	const getOrders = useGetMany("orders", selectedIds);
+
+	getOrders.data.forEach(x => {
+		let order = JSON.parse(JSON.stringify(x));
+
+		if (!order.formatted){
+			order.formatted = true;
+
+			order.customer_reference = getUsers.data[order.customer];
+			order.items = order.items.map(i => {
+				let item = i;
+				item.item_reference = getProducts.data[item.product];
+				return item;
+			});
+
+			order.order_date = new Date(order.order_date).toDateString();
+			order.paid = order.paid ? "DEL" : "COD";
+			
+			order.customer_name = order.customer_reference.name;
+			order.city = order.customer_reference.location.city;
+			order.address = order.customer_reference.location.address;
+
+			order.quantity = 0;
+			order.price = 0;
+
+			order.items.forEach(x => {
+				if (x){
+					order.quantity += x.quantity;
+					order.price += x.item_reference.price * x.quantity;
+				}
+			});
+
+			if (!shipping_codes.includes(order.shipment_code)) {
+				shipping_codes.push(order.shipment_code);
+				shipping_codes.sort();
+			}
+		}
+
+		orders.push(order);
+	});
+
+	const handleClick = () => {
+		printjs({
+			printable: orders,
+			properties: [
+				{ field: "order_code", displayName: "Order Code" },
+				{ field: "customer_name", displayName: "Customer"},
+				{ field: "order_date", displayName: "Order Date" },
+				{ field: "paid", displayName: "Paid"},
+				{ field: "quantity", displayName: "Quantity"},
+				{ field: "price", displayName: "Price"},
+				{ field: "city", displayName: "City"},
+				{ field: "address", displayName: "Address"},
+			],
+			type: "json",
+			gridHeaderStyle: 'border 2px solid #ddd;',
+			gridStyle: 'border: 2px solid #ddd; font-size: 14px; padding: 5px;',
+			header: `<h3> Shwe Nu Cosmetics, Shipping Code : ${shipping_codes.join(" & ")} </h3>`
+		});
+	}
+
+	return (
+		<Button label="Print" startIcon={<Print />} onClick={handleClick} color="default" /> 
 	);
 }
 
 const BulkButtons = props => {
 	return (
 		<div>
+			<PrintOrders {...props} />
 			<ShipmentCode {...props} />
 			<BulkDeleteWithUndoButton {...props} />
 		</div>
-	)
+	);
 }
 
 const TotalQuantity = ({ record }) => {
 	let total = 0;
 
-	record.items.forEach(x => total += x.quantity);
+	record.items.forEach(x => {
+		if (x){
+			total += x.quantity;
+		}
+	});
 
 	return (
 		<Container>
 			{total.toLocaleString()}
-        </Container>
-	)
+		</Container>
+	);
 }
 
 const TotalPrice = ({ record }) => {
@@ -137,9 +214,13 @@ const TotalPrice = ({ record }) => {
 	let prices = {};
 	let total = 0;
 
-	record.items.forEach(x => {products.push(x.product); quantities[x.product] ? quantities[x.product] += x.quantity : quantities[x.product] = x.quantity});
+	record.items.forEach(x => {
+		if (x){
+			products.push(x.product); quantities[x.product] ? quantities[x.product] += x.quantity : quantities[x.product] = x.quantity;
+		}
+	});
 
-	const { data, loading } = useGetMany('products', products);
+	const { data, loading } = useGetMany("products", products);
 	if (loading) { return <div> Loading... </div> }
 
 	if (data.every(x => x !== undefined)) { data.forEach(x => prices[x.id] = x.price) };
@@ -149,8 +230,26 @@ const TotalPrice = ({ record }) => {
 	return (
 		<Container>
 			{total.toLocaleString()}
-        </Container>
-	)
+		</Container>
+	);
+}
+
+// Can not embed in List, must be separate components
+const ProductsFromOrders = () => {
+	return (
+		<Datagrid currentSort={{ field: "id", order: "ADC" }}>
+			<ReferenceField source="product" reference="products" label="Name" sortable={false}>
+				<TextField source="name" />
+			</ReferenceField>
+			<ReferenceField source="product" reference="products" label="Size" sortable={false}>
+				<TextField source="size" />
+			</ReferenceField>
+			<ReferenceField source="product" reference="products" label="Price" sortable={false}>
+				<TextField source="price" />
+			</ReferenceField>
+			<NumberField source="quantity" />
+		</Datagrid>
+	);
 }
 
 export const OrdersList = props => (
@@ -167,19 +266,8 @@ export const OrdersList = props => (
 				<TextField source="location.city" />
 			</ReferenceField>
 			<BooleanField source="paid" label="Paid" FalseIcon={() => (<div> COD </div>)} TrueIcon={() => (<div> DEL </div>)} />
-			<ArrayField source="items" sortable={false}>
-				<Datagrid>
-					<ReferenceField source="product" reference="products" label="Name" sortable={false}>
-						<TextField source="name" />
-					</ReferenceField>
-					<ReferenceField source="product" reference="products" label="Size" sortable={false}>
-						<TextField source="size" />
-					</ReferenceField>
-					<ReferenceField source="product" reference="products" label="Price" sortable={false}>
-						<TextField source="price" />
-					</ReferenceField>
-					<NumberField source="quantity" />
-				</Datagrid>
+			<ArrayField source="items">
+				<ProductsFromOrders />
 			</ArrayField>
 			<TotalQuantity source="items" label="Total Quantity" textAlign="right" addLabel={true} sortable={false} />
 			<TotalPrice source="items" label="Total Price" textAlign="right" addLabel={true} sortable={false} />
@@ -190,9 +278,9 @@ export const OrdersList = props => (
 
 export const OrdersEdit = props => (
 	<Edit {...props} title="Edit" actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="orders">
-			<TextInput source="id" defaultValue={uniqid('o-')} />
-			<TextInput source="order_code" label="Order Code" defaultValue={BiggestOrderCodePlusOne()} />
+		<SimpleForm submitOnEnter>
+			<TextInput source="id" defaultValue={uniqid("o-")} />
+			<TextInput source="order_code" label="Order Code" />
 			<TextInput source="shipment_code" label="Shipment Code" defaultValue={0} />
 			<DateInput source="order_date" defaultValue={new Date()} />
 			<ReferenceInput source="customer" reference="users">
@@ -201,7 +289,7 @@ export const OrdersEdit = props => (
 			<BooleanInput source="paid" />
 			<ArrayInput source="items">
 				<SimpleFormIterator>
-					<TextInput source="id" label="Id" defaultValue={uniqid('i-')} />
+					<TextInput source="id" label="Id" defaultValue={uniqid("i-")} />
 					<ReferenceInput source="product" reference="products" label="Product">
 						<AutocompleteInput optionText="name" />
 					</ReferenceInput>
@@ -221,8 +309,8 @@ export const OrdersEdit = props => (
 
 export const OrdersCreate= props => (
 	<Create {...props} actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="orders">
-			<TextInput source="id" defaultValue={uniqid('o-')} />
+		<SimpleForm submitOnEnter redirect="./">
+			<TextInput source="id" defaultValue={uniqid("o-")} />
 			<TextInput source="order_code" label="Order Code" defaultValue={BiggestOrderCodePlusOne()} />
 			<TextInput source="shipment_code" label="Shipment Code" defaultValue={0} />
 			<DateInput source="order_date" defaultValue={new Date()} />
@@ -232,7 +320,7 @@ export const OrdersCreate= props => (
 			<BooleanInput source="paid" />
 			<ArrayInput source="items">
 				<SimpleFormIterator>
-					<TextInput source="id" label="Id" defaultValue={uniqid('i-')} />
+					<TextInput source="id" label="Id" defaultValue={uniqid("i-")} />
 					<ReferenceInput source="product" reference="products" label="Product">
 						<AutocompleteInput optionText="name" />
 					</ReferenceInput>

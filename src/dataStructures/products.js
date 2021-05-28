@@ -31,7 +31,7 @@ export const ProductsList = props => (
 
 export const ProductsEdit = props => (
 	<Edit {...props} title="Edit" actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="products">
+		<SimpleForm submitOnEnter>
 			<TextInput source="id" defaultValue={uniqid('p-')} />
 			<TextInput source="name" />
 			<TextInput source="description" multiline />
@@ -43,7 +43,7 @@ export const ProductsEdit = props => (
 
 export const ProductsCreate= props => (
 	<Create {...props} actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="products">
+		<SimpleForm submitOnEnter redirect="./">
 			<TextInput source="id" defaultValue={uniqid('p-')} />
 			<TextInput source="name" />
 			<TextInput source="description" multiline />

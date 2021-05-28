@@ -37,7 +37,7 @@ const BiggestShipmentCodePlusOne = () => {
 			biggest = data[x].code;
 		}
 	}
-
+	
 	return biggest + 1;
 }
 
@@ -60,9 +60,7 @@ const ShipmentsSend = ({ selectedIds }) => {
 	);
 
 	return (
-		<div>
-			<Button label="Send Shipments" startIcon={<Send />} onClick={updateMany} />
-		</div>
+		<Button label="Send Shipments" startIcon={<Send />} onClick={updateMany} color="default" />
 	);
 }
 
@@ -83,9 +81,9 @@ export const ShipmentsList = props => (
 			<DateField source="start_date" label="Start Date" />
 			<DateField source="ship_date" label="Ship Date" />
 			<BooleanField source="shipped" label="Shipped" FalseIcon={Clear} TrueIcon={Check} />
-			<ReferenceManyField source="code" reference="orders" target="shipment_code" sortable={false}>
+			<ReferenceManyField source="code" reference="orders" target="shipment_code" label="Orders" sortable={false}>
 				<Datagrid>
-					<ReferenceField source="id" reference="orders" label="Order" sortable={false}>
+					<ReferenceField source="id" reference="orders" label="Order" sortable={true}>
 						<TextField source="order_code" />
 					</ReferenceField>
 					<ReferenceField source="customer" reference="users" label="Customer" sortable={false}>
@@ -103,9 +101,9 @@ export const ShipmentsList = props => (
 
 export const ShipmentsEdit = props => (
 	<Edit {...props} title="Edit" actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="shipments">
+		<SimpleForm submitOnEnter>
 			<TextInput source="id" defaultValue={uniqid('s-')} />
-			<TextInput source="code" defaultValue={BiggestShipmentCodePlusOne()} />
+			<TextInput source="code" />
 			<DateInput source="start_date" label="Start Date" />
 			<DateInput source="ship_date" label="Ship Date" />
 			<BooleanInput source="shipped" label="Shipped" defaultValue={false} />
@@ -115,7 +113,7 @@ export const ShipmentsEdit = props => (
 
 export const ShipmentsCreate= props => (
 	<Create {...props} actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="shipments">
+		<SimpleForm submitOnEnter redirect="./">
 			<TextInput source="id" defaultValue={uniqid('s-')} />
 			<TextInput source="code" defaultValue={BiggestShipmentCodePlusOne()} />
 			<DateInput source="start_date" label="Start Date" />
