@@ -140,13 +140,30 @@ const PrintOrders = ({ selectedIds }) => {
 
 			order.quantity = 0;
 			order.price = 0;
+			order.order = "<table> <tr>";
+			order.order += "<th> Product </th>";
+			order.order += "<th> Size </th>";
+			order.order += "<th> Price </th>";
+			order.order += "<th> Quantity </th>";
+			order.order += "<th> Amount </th>";
+			order.order += "</tr>";
 
 			order.items.forEach(x => {
 				if (x){
 					order.quantity += x.quantity;
 					order.price += x.item_reference.price * x.quantity;
+
+					order.order += "<tr>";
+					order.order += `<td> ${x.item_reference.name} </td>`;
+					order.order += `<td> ${x.item_reference.size} </td>`;
+					order.order += `<td> ${x.item_reference.price} </td>`;
+					order.order += `<td> ${x.quantity} </td>`;
+					order.order += `<td> ${x.item_reference.price * x.quantity} </td>`;
+					order.order += "</tr>";
 				}
 			});
+
+			order.order += "</table>";
 
 			if (!shipping_codes.includes(order.shipment_code)) {
 				shipping_codes.push(order.shipment_code);
@@ -162,13 +179,12 @@ const PrintOrders = ({ selectedIds }) => {
 			printable: orders,
 			properties: [
 				{ field: "order_code", displayName: "Order Code" },
-				{ field: "customer_name", displayName: "Customer"},
 				{ field: "order_date", displayName: "Order Date" },
+				{ field: "customer_name", displayName: "Customer"},
 				{ field: "paid", displayName: "Paid"},
-				{ field: "quantity", displayName: "Quantity"},
-				{ field: "price", displayName: "Price"},
-				{ field: "city", displayName: "City"},
-				{ field: "address", displayName: "Address"},
+				{ field: "order", displayName: "Order"},
+				{ field: "quantity", displayName: "Total Quantity"},
+				{ field: "price", displayName: "Total Price"},
 			],
 			type: "json",
 			gridHeaderStyle: 'border 2px solid #ddd;',
