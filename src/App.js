@@ -6,7 +6,7 @@ import React from 'react';
 import { CssBaseline, createMuiTheme } from '@material-ui/core';
 import { People, LocalShipping, CollectionsBookmark, Category } from '@material-ui/icons';
 import { Admin, Resource } from 'react-admin';
-import { FirebaseDataProvider } from 'react-admin-firebase';
+import { FirebaseAuthProvider, FirebaseDataProvider } from 'react-admin-firebase';
 import axios from 'axios'
 
 // Structures
@@ -26,9 +26,10 @@ const firebaseConfig = {
     messagingSenderId: "746767026671",
     appId: "1:746767026671:web:24421173fc90512528ce1a"
 };
-	
-// const dataProvider = FirebaseDataProvider(firebaseConfig, {});
-const dataProvider = data;
+
+const authProvider = FirebaseAuthProvider(firebaseConfig);
+const dataProvider = FirebaseDataProvider(firebaseConfig);
+//const dataProvider = data;
 
 function App() {
 	const styles = createMuiTheme({
@@ -54,25 +55,13 @@ function App() {
 		},
 		typography: {
 			fontFamily: "Comfortaa, Montserrat"
-		}
+		},
 	})
-
-	/*
-	const [Data, setData] = useState({})
-	setData({
-		users : [
-			{
-				name: "customer 1",
-				id : uniqid('u-'),
-			}
-		]
-	})
-	*/
 
 	return (
 		<div>
 			<CssBaseline />
-			<Admin theme={styles} dataProvider={dataProvider} dashboard={Dashboard} title="Invent OS" disableTelemetry>
+			<Admin theme={styles} authProvider={authProvider} dataProvider={dataProvider} dashboard={Dashboard} title="Invent OS" disableTelemetry>
 				<Resource name="users" list={UsersList} edit={UsersEdit} create={UsersCreate} icon={People} />
 				<Resource name="shipments" list={ShipmentsList} edit={ShipmentsEdit} create={ShipmentsCreate} icon={LocalShipping} />
 				<Resource name="orders" list={OrdersList} edit={OrdersEdit} create={OrdersCreate} icon={CollectionsBookmark} />

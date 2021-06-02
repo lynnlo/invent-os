@@ -70,7 +70,8 @@ const BigGraphSumOverTime = ({ reference, label, field, sort, icon, size }) => {
 
 	for (const x in data){
 		if (x) {
-			let index = Intl.DateTimeFormat('en-US', { month: 'long' }).format(data[x][field]);
+			let date = new Date(data[x][field]);
+			let index = Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
 			values[index] ? values[index] += 1 : values[index] = 1;
 		}
 	}
@@ -115,7 +116,8 @@ const BigGraphRevenue = ({ label, icon, size }) => {
 
 	for (const x in data){
 		if (x) {
-			let index = Intl.DateTimeFormat('en-US', { month: 'long' }).format(data[x]['order_date']);
+			let date = new Date(data[x]['order_date']);
+			let index = Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
 
 			data[x].items.forEach(i => {
 				values[index] ? values[index] += getProducts.data[i.product].price * i.quantity : values[index] = getProducts.data[i.product].price * i.quantity;

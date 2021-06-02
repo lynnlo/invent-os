@@ -140,6 +140,7 @@ const PrintOrders = ({ selectedIds }) => {
 
 			order.quantity = 0;
 			order.price = 0;
+
 			order.order = "<table> <tr>";
 			order.order += "<th> Product </th>";
 			order.order += "<th> Size </th>";
