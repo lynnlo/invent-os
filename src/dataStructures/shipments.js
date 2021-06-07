@@ -36,9 +36,9 @@ const BiggestShipmentCodePlusOne = () => {
 		if (data[x].code > biggest) {
 			biggest = data[x].code;
 		}
+				
+		return biggest + 1;
 	}
-	
-	return biggest + 1;
 }
 
 const ShipmentsSend = ({ selectedIds }) => {

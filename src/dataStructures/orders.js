@@ -35,7 +35,7 @@ import {
 	BooleanInput,
 	useGetList
 } from 'react-admin';
-import { AttachMoney, Clear, Check, Height, LocalShipping, Print } from '@material-ui/icons';
+import { AttachMoney, Clear, Check, Height, LocalShipping, Print, GpsFixed } from '@material-ui/icons';
 import { Back } from './globals.js';
 import { Filter } from './orders-filter.js';
 import uniqid from 'uniqid';
@@ -49,9 +49,9 @@ const BiggestOrderCodePlusOne = () => {
 		if (data[x].order_code > biggest) {
 			biggest = data[x].order_code;
 		}
-	}
 
-	return biggest + 1;
+		return biggest + 1;
+	}
 }
 
 const BiggestShipmentCode = () => {
@@ -62,9 +62,10 @@ const BiggestShipmentCode = () => {
 		if (data[x].code > biggest) {
 			biggest = data[x].code;
 		}
-	}
 
-	return biggest;
+		
+		return biggest;
+	}
 }
 
 const ShipmentCode = ({ selectedIds }) => {
@@ -164,6 +165,8 @@ const PrintOrders = ({ selectedIds }) => {
 				}
 			});
 
+			order.price += order.shipping;
+
 			order.order += "</table>";
 
 			if (!shipping_codes.includes(order.shipment_code)) {
@@ -212,11 +215,13 @@ const BulkButtons = props => {
 const TotalQuantity = ({ record }) => {
 	let total = 0;
 
-	record.items.forEach(x => {
-		if (x){
-			total += x.quantity;
-		}
-	});
+	if ( record.items ) {
+		record.items.forEach(x => {
+			if (x){
+				total += x.quantity;
+			}
+		});
+	}
 
 	return (
 		<Container>
@@ -231,18 +236,23 @@ const TotalPrice = ({ record }) => {
 	let prices = {};
 	let total = 0;
 
-	record.items.forEach(x => {
-		if (x){
-			products.push(x.product); quantities[x.product] ? quantities[x.product] += x.quantity : quantities[x.product] = x.quantity;
-		}
-	});
-
+	if ( record.items ) {
+		record.items.forEach(x => {
+			if (x){
+				products.push(x.product); quantities[x.product] ? quantities[x.product] += x.quantity : quantities[x.product] = x.quantity;
+			}
+		});
+	}
 	const { data, loading } = useGetMany("products", products);
 	if (loading) { return <div> Loading... </div> }
 
 	if (data.every(x => x !== undefined)) { data.forEach(x => prices[x.id] = x.price) };
 
 	products.forEach(x => total += quantities[x] * prices[x]);
+	
+	if ( record.shipping ) {
+		total += record.shipping;
+	}
 
 	return (
 		<Container>
@@ -279,13 +289,11 @@ export const OrdersList = props => (
 			<ReferenceField source="customer" reference="users" label="Customer" sortable={false}>
 				<TextField source="name" />
 			</ReferenceField>
-			<ReferenceField source="customer" reference="users" label="City" link={false} sortable={false}>
-				<TextField source="location.city" />
-			</ReferenceField>
 			<BooleanField source="paid" label="Paid" FalseIcon={() => (<div> COD </div>)} TrueIcon={() => (<div> DEL </div>)} />
 			<ArrayField source="items">
 				<ProductsFromOrders />
 			</ArrayField>
+			<NumberField source="shipping" />
 			<TotalQuantity source="items" label="Total Quantity" textAlign="right" addLabel={true} sortable={false} />
 			<TotalPrice source="items" label="Total Price" textAlign="right" addLabel={true} sortable={false} />
 			<EditButton />
@@ -295,20 +303,24 @@ export const OrdersList = props => (
 
 export const OrdersEdit = props => (
 	<Edit {...props} title="Edit" actions={<Back />}>
-		<SimpleForm submitOnEnter>
+		<SimpleForm redirect="./">
 			<TextInput source="id" defaultValue={uniqid("o-")} />
-			<TextInput source="order_code" label="Order Code" />
+			<TextInput source="order_code" label="Order Code" defaultValue={BiggestOrderCodePlusOne()} />
 			<TextInput source="shipment_code" label="Shipment Code" defaultValue={0} />
 			<DateInput source="order_date" defaultValue={new Date()} />
-			<ReferenceInput source="customer" reference="users">
-				<AutocompleteInput optionText="name" />
+			<ReferenceInput source="customer" reference="users" >
+				<AutocompleteInput source="name" resettable={true} />
 			</ReferenceInput>
+			<ReferenceInput source="customer" reference="users" label="City">
+				<SelectInput optionText="location.city" inputProps={{disabled: true}} SelectProps={{IconComponent: GpsFixed}} />
+			</ReferenceInput>
+			<NumberInput source="shipping" label="Shipping" />
 			<BooleanInput source="paid" />
 			<ArrayInput source="items">
 				<SimpleFormIterator>
 					<TextInput source="id" label="Id" defaultValue={uniqid("i-")} />
 					<ReferenceInput source="product" reference="products" label="Product">
-						<AutocompleteInput optionText="name" />
+						<AutocompleteInput source="name" />
 					</ReferenceInput>
 					<ReferenceInput source="product" reference="products" label="Price">
 						<SelectInput optionText="price" inputProps={{disabled: true}} SelectProps={{IconComponent: AttachMoney}} />
@@ -316,7 +328,7 @@ export const OrdersEdit = props => (
 					<ReferenceInput source="product" reference="products" label="Size">
 						<SelectInput optionText="size" multiline inputProps={{disabled: true}} SelectProps={{IconComponent: Height}} />
 					</ReferenceInput>
-					<NumberInput source="quantity" label="Quantity" />
+					<NumberInput source="quantity" label="Quantity" defaultValue={1} />
 				</SimpleFormIterator>
 			</ArrayInput>
 			<TextInput source="notes" />
@@ -325,21 +337,25 @@ export const OrdersEdit = props => (
 );
 
 export const OrdersCreate= props => (
-	<Create {...props} actions={<Back />}>
-		<SimpleForm submitOnEnter redirect="./">
+	<Create {...props}>
+		<SimpleForm redirect="./">
 			<TextInput source="id" defaultValue={uniqid("o-")} />
 			<TextInput source="order_code" label="Order Code" defaultValue={BiggestOrderCodePlusOne()} />
 			<TextInput source="shipment_code" label="Shipment Code" defaultValue={0} />
 			<DateInput source="order_date" defaultValue={new Date()} />
-			<ReferenceInput source="customer" reference="users">
-				<AutocompleteInput optionText="name" />
+			<ReferenceInput source="customer" reference="users" >
+				<AutocompleteInput source="name" resettable={true} />
 			</ReferenceInput>
+			<ReferenceInput source="customer" reference="users" label="City">
+				<SelectInput optionText="location.city" inputProps={{disabled: true}} SelectProps={{IconComponent: GpsFixed}} />
+			</ReferenceInput>
+			<NumberInput source="shipping" label="Shipping" />
 			<BooleanInput source="paid" />
 			<ArrayInput source="items">
 				<SimpleFormIterator>
 					<TextInput source="id" label="Id" defaultValue={uniqid("i-")} />
 					<ReferenceInput source="product" reference="products" label="Product">
-						<AutocompleteInput optionText="name" />
+						<AutocompleteInput source="name" />
 					</ReferenceInput>
 					<ReferenceInput source="product" reference="products" label="Price">
 						<SelectInput optionText="price" inputProps={{disabled: true}} SelectProps={{IconComponent: AttachMoney}} />
@@ -347,7 +363,7 @@ export const OrdersCreate= props => (
 					<ReferenceInput source="product" reference="products" label="Size">
 						<SelectInput optionText="size" multiline inputProps={{disabled: true}} SelectProps={{IconComponent: Height}} />
 					</ReferenceInput>
-					<NumberInput source="quantity" label="Quantity" />
+					<NumberInput source="quantity" label="Quantity" defaultValue={1} />
 				</SimpleFormIterator>
 			</ArrayInput>
 			<TextInput source="notes" />

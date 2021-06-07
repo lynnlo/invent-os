@@ -34,8 +34,8 @@ const BigNumber = ({ reference, label, field, icon, size }) => {
 	);
 }
 
-// First value of a sort in a list
-const BigFirstSort = ({ reference, label, field, sort, func, icon, size }) => {
+// First date value of a sort in a list
+const BigFirstDateSort = ({ reference, label, field, sort, func, icon, size }) => {
 	let display;
 
 	const { data, loading } = useGetList(reference, { page: 1, perPage: 1 }, sort);
@@ -43,7 +43,8 @@ const BigFirstSort = ({ reference, label, field, sort, func, icon, size }) => {
 	
 	for (const x in data){
 		if (x) {
-			display = func ? data[x][field][func]() : data[x][field];
+			let date = new Date(data[x][field])
+			display = func ? date[func]() : date;
 		}	
 	}
 
@@ -66,7 +67,7 @@ const BigGraphSumOverTime = ({ reference, label, field, sort, icon, size }) => {
 	let values = {};
 	let graphData = [];
 
-	const { data } = useGetList(reference, { page: 1, perPage: 100 }, sort);
+	const { data } = useGetList(reference, { page: 1, perPage: 20 }, sort);
 
 	for (const x in data){
 		if (x) {
@@ -111,7 +112,7 @@ const BigGraphRevenue = ({ label, icon, size }) => {
 	let values = {};
 	let graphData = [];
 
-	const getProducts = useGetList("products");
+	const getProducts = useGetList("products", { page: 1, perPage: 20 });
 	const { data } = useGetList('orders');
 
 	for (const x in data){
@@ -119,9 +120,11 @@ const BigGraphRevenue = ({ label, icon, size }) => {
 			let date = new Date(data[x]['order_date']);
 			let index = Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
 
-			data[x].items.forEach(i => {
-				values[index] ? values[index] += getProducts.data[i.product].price * i.quantity : values[index] = getProducts.data[i.product].price * i.quantity;
-			});
+			if (data[x].items) {
+				data[x].items.forEach(i => {
+					values[index] ? values[index] += getProducts.data[i.product].price * i.quantity : values[index] = getProducts.data[i.product].price * i.quantity;
+				});
+			}
 		}
 	}
 
@@ -178,8 +181,8 @@ export const Dashboard = props => (
 				<BigNumber reference="users" label="Total Customers" icon={<People />} />
 				<BigNumber reference="orders" label="Total Orders" icon={<CollectionsBookmark />} />
 				<BigNumber reference="shipments" label="Total Shipments" icon={<LocalShipping />} />
-				<BigFirstSort reference="shipments" label="Last Shipment" field="ship_date" sort={{ field: "ship_date", order: "DESC" }} func="toDateString" icon={<LocalShipping />} />
-				<BigFirstSort reference="orders" label="Last Order" field="order_date" sort={{ field: "order_date", order: "DESC" }} func="toDateString" icon={<CollectionsBookmark />} />
+				<BigFirstDateSort reference="shipments" label="Last Shipment" field="ship_date" sort={{ field: "ship_date", order: "DESC" }} func="toDateString" icon={<LocalShipping />} />
+				<BigFirstDateSort reference="orders" label="Last Order" field="order_date" sort={{ field: "order_date", order: "DESC" }} func="toDateString" icon={<CollectionsBookmark />} />
 				<BigNumber reference="products" label="Total Products" icon={<Category />} />
 			</Grid>
 		</CardContent>

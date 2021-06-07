@@ -3,11 +3,10 @@
 
 // Packages
 import React from 'react';
-import { CssBaseline, createMuiTheme } from '@material-ui/core';
+import { CssBaseline, createMuiTheme, responsiveFontSizes } from '@material-ui/core';
 import { People, LocalShipping, CollectionsBookmark, Category } from '@material-ui/icons';
 import { Admin, Resource } from 'react-admin';
 import { FirebaseAuthProvider, FirebaseDataProvider } from 'react-admin-firebase';
-import axios from 'axios'
 
 // Structures
 import data from './data.js';
@@ -32,7 +31,7 @@ const dataProvider = FirebaseDataProvider(firebaseConfig);
 //const dataProvider = data;
 
 function App() {
-	const styles = createMuiTheme({
+	const styles = responsiveFontSizes(createMuiTheme({
 		palette: {
 			type: "dark",
 			background: {
@@ -54,9 +53,10 @@ function App() {
 			}
 		},
 		typography: {
-			fontFamily: "Comfortaa, Montserrat"
+			fontFamily: "Comfortaa, Montserrat",
 		},
-	})
+
+	}));
 
 	return (
 		<div>

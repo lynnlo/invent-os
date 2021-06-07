@@ -1,7 +1,6 @@
 // Lynn Ong. 2021
 /* eslint-disable no-unused-vars */
 
-import jsonServerProvider from 'ra-data-json-server';
 import fakeDataProvider from 'ra-data-fakerest';
 import uniqid from 'uniqid';
 
@@ -9,7 +8,7 @@ let data = fakeDataProvider({
 	users: [
 		{ 
 			id: 'u-0', 
-			name: 'Name One', 
+			name: 'Frank', 
 			phone: '123 456 7890', 
 			location: {
 				city : 'Yangon',
@@ -21,7 +20,7 @@ let data = fakeDataProvider({
 		},
 		{ 
 			id: 'u-1', 
-			name: 'Name Two', 
+			name: 'Billy', 
 			phone: '222 222 2223', 
 			location: {
 				city : 'Yangon',
@@ -33,7 +32,7 @@ let data = fakeDataProvider({
 		},
 		{ 
 			id: 'u-2', 
-			name: 'Name Three', 
+			name: 'Trevor', 
 			phone: '111 222 333',
 			location: {
 				city : 'Mandalay',
@@ -45,7 +44,7 @@ let data = fakeDataProvider({
 		},
 		{ 
 			id: 'u-3', 
-			name: 'Name Four', 
+			name: 'John', 
 			phone: '123 123 123',
 			location: {
 				city : 'Yangon',
@@ -57,7 +56,7 @@ let data = fakeDataProvider({
 		},
 		{ 
 			id: 'u-4', 
-			name: 'Name Five', 
+			name: 'Mary', 
 			phone: '000 111 000',
 			location: {
 				city : 'Yangon',
