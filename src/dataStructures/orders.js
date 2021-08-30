@@ -308,7 +308,7 @@ export const OrdersEdit = props => (
 			<TextInput source="order_code" label="Order Code" defaultValue={BiggestOrderCodePlusOne()} />
 			<TextInput source="shipment_code" label="Shipment Code" defaultValue={0} />
 			<DateInput source="order_date" defaultValue={new Date()} />
-			<ReferenceInput source="customer" reference="users" >
+			<ReferenceInput source="customer" reference="users" filterToQuery={name =>  ({name})} >
 				<AutocompleteInput source="name" resettable={true} />
 			</ReferenceInput>
 			<ReferenceInput source="customer" reference="users" label="City">
@@ -343,7 +343,7 @@ export const OrdersCreate= props => (
 			<TextInput source="order_code" label="Order Code" defaultValue={BiggestOrderCodePlusOne()} />
 			<TextInput source="shipment_code" label="Shipment Code" defaultValue={0} />
 			<DateInput source="order_date" defaultValue={new Date()} />
-			<ReferenceInput source="customer" reference="users" >
+			<ReferenceInput source="customer" reference="users" filterToQuery={name =>  ({name})} >
 				<AutocompleteInput source="name" resettable={true} />
 			</ReferenceInput>
 			<ReferenceInput source="customer" reference="users" label="City">
